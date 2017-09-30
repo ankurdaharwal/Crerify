@@ -1,30 +1,25 @@
 package main
 
 import (
-	
+	"encoding/json"
 	"errors"
 	"fmt"
-	"encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
+
 type Employee struct {
-
 }
-
 
 type EMPLOYEEJSON struct {
-
-EmployeeId string `json: "EmployeeId"` 
-EmployeeName string `json: "EmployeeName"`
-CompanyName string `json: "CompanyName"`
-JoiningDate string `json: "JoiningDate"`
-RelievingDate string `json: "RelievingDate"`
-Designation string `json: "Designation"`
-EmployeeStatus string `json: "EmployeeStatus"`
-EmployeeRegTime string `json: "EmployeeRegTime"`
-
+	EmployeeId      string `json: "EmployeeId"`
+	EmployeeName    string `json: "EmployeeName"`
+	CompanyName     string `json: "CompanyName"`
+	JoiningDate     string `json: "JoiningDate"`
+	RelievingDate   string `json: "RelievingDate"`
+	Designation     string `json: "Designation"`
+	EmployeeStatus  string `json: "EmployeeStatus"`
+	EmployeeRegTime string `json: "EmployeeRegTime"`
 }
-
 
 func (t *Employee) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	// Check if table already exists
@@ -33,7 +28,6 @@ func (t *Employee) Init(stub shim.ChaincodeStubInterface, function string, args 
 		// Table already exists; do not recreate
 		return nil, nil
 	}
-
 
 	// Create BOL Table
 	err = stub.CreateTable("EmployeeRegistration", []*shim.ColumnDefinition{
@@ -45,35 +39,32 @@ func (t *Employee) Init(stub shim.ChaincodeStubInterface, function string, args 
 		&shim.ColumnDefinition{Name: "RelievingDate", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "Designation", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "EmployeeStatus", Type: shim.ColumnDefinition_STRING, Key: false},
-		&shim.ColumnDefinition{Name: "EmployeeRegTime", Type: shim.ColumnDefinition_STRING, Key: false}
+		&shim.ColumnDefinition{Name: "EmployeeRegTime", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
 	if err != nil {
 		return nil, errors.New("Failed creating Employee Registration Table.")
 	}
 
-
 	return nil, nil
 
+}
+
+func (t *Employee) SubmitDoc(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	if len(args) != 8 {
+		return nil, fmt.Errorf("Incorrect number of arguments. Expecting 8. Got: %d.", len(args))
 	}
 
+	EmployeeId := args[0]
+	EmployeeName := args[1]
+	CompanyName := args[2]
+	JoiningDate := args[3]
+	RelievingDate := args[4]
+	Designation := args[5]
+	EmployeeStatus := args[6]
+	EmployeeRegTime := args[7]
 
-	func (t *Employee) SubmitDoc(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-
-		
-		if len(args) != 8 {
-			return nil, fmt.Errorf("Incorrect number of arguments. Expecting 8. Got: %d.", len(args))
-		}
-
-		EmployeeId := args[0]
-		EmployeeName := args[1]
-		CompanyName := args[2]
-		JoiningDate := args[3]
-		RelievingDate := args[4]
-		Designation := args[5]]
-		EmployeeStatus := args[6]
-		EmployeeRegTime := args[7]
-
-		// Insert a row
+	// Insert a row
 	ok, err := stub.InsertRow("EmployeeRegistration", shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: "EmployeeRegistration"}},
@@ -84,8 +75,7 @@ func (t *Employee) Init(stub shim.ChaincodeStubInterface, function string, args 
 			&shim.Column{Value: &shim.Column_String_{String_: RelievingDate}},
 			&shim.Column{Value: &shim.Column_String_{String_: Designation}},
 			&shim.Column{Value: &shim.Column_String_{String_: EmployeeStatus}},
-			&shim.Column{Value: &shim.Column_String_{String_: EmployeeRegTime}}
-
+			&shim.Column{Value: &shim.Column_String_{String_: EmployeeRegTime}}},
 	})
 
 	if !ok && err == nil {
@@ -95,13 +85,11 @@ func (t *Employee) Init(stub shim.ChaincodeStubInterface, function string, args 
 	return nil, err
 }
 
+func (t *Employee) GetED(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-func (t *Employee) GetED (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-
-		if len(args) != 1 {
+	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1.")
-		}
-
+	}
 
 	EmployeeId := args[0]
 
@@ -121,27 +109,26 @@ func (t *Employee) GetED (stub shim.ChaincodeStubInterface, args []string) ([]by
 
 	// GetRows returns empty message if key does not exist
 	if len(row.Columns) == 0 {
-		
-	EmployeeJSON.EmployeeId = ""
-	EmployeeJSON.EmployeeName = ""
-	EmployeeJSON.CompanyName = ""
-	EmployeeJSON.JoiningDate = ""
-	EmployeeJSON.RelievingDate = ""
-	EmployeeJSON.Designation = ""
-	EmployeeJSON.EmployeeStatus = ""
-	EmployeeJSON.EmployeeRegTime = ""
+
+		EmployeeJSON.EmployeeId = ""
+		EmployeeJSON.EmployeeName = ""
+		EmployeeJSON.CompanyName = ""
+		EmployeeJSON.JoiningDate = ""
+		EmployeeJSON.RelievingDate = ""
+		EmployeeJSON.Designation = ""
+		EmployeeJSON.EmployeeStatus = ""
+		EmployeeJSON.EmployeeRegTime = ""
 
 	} else {
 
-
-	EmployeeJSON.EmployeeId = row.Columns[2].GetString_()
-	EmployeeJSON.EmployeeName = row.Columns[3].GetString_()
-	EmployeeJSON.CompanyName = row.Columns[4].GetString_()
-	EmployeeJSON.JoiningDate = row.Columns[5].GetString_()
-	EmployeeJSON.RelievingDate = row.Columns[6].GetString_()
-	EmployeeJSON.Designation = row.Columns[7].GetString_()
-	EmployeeJSON.EmployeeStatus = row.Columns[8].GetString_()
-	EmployeeJSON.EmployeeRegTime = row.Columns[9].GetString_())
+		EmployeeJSON.EmployeeId = row.Columns[2].GetString_()
+		EmployeeJSON.EmployeeName = row.Columns[3].GetString_()
+		EmployeeJSON.CompanyName = row.Columns[4].GetString_()
+		EmployeeJSON.JoiningDate = row.Columns[5].GetString_()
+		EmployeeJSON.RelievingDate = row.Columns[6].GetString_()
+		EmployeeJSON.Designation = row.Columns[7].GetString_()
+		EmployeeJSON.EmployeeStatus = row.Columns[8].GetString_()
+		EmployeeJSON.EmployeeRegTime = row.Columns[9].GetString_()
 
 	}
 
@@ -154,7 +141,6 @@ func (t *Employee) GetED (stub shim.ChaincodeStubInterface, args []string) ([]by
 
 	fmt.Println(jsonER)
 
- 	return jsonER, nil
+	return jsonER, nil
 
-	}
-
+}
