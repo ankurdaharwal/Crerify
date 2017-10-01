@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -54,7 +53,7 @@ func (t *CRERIFY) Query(stub shim.ChaincodeStubInterface, function string, args 
 
  	} else if function == "getCandidate"{
 
-		return t.sn.GetED(stub, args)
+		return t.Employee.GetED(stub, args)
 	}
 	
 	return nil, errors.New("Invalid query function name.")
